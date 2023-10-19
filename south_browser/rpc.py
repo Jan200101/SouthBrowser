@@ -49,21 +49,19 @@ def NSGetServerCount(repeat: bool = True):
 def NSGetGameServers():
     # work around Squirrel closure bullshit
     server_count = NSGetServerCount()
+    if not server_count:
+        return []
 
-    for i in range(server_count):
+    primret = []
+    for c in range(server_count):
+        primret.append(f"[s[{c}].index, s[{c}].id, s[{c}].name, s[{c}].description, s[{c}].map, s[{c}].playlist, s[{c}].playerCount, s[{c}].maxPlayerCount, s[{c}].requiresPassword, s[{c}].region]")
 
-        primret = []
+    ret = "[" + ",".join(primret) + "]"
 
-        for c in range(server_count):
-            primret.append(f"[s[{c}].index, s[{c}].id, s[{c}].name, s[{c}].description, s[{c}].map, s[{c}].playlist, s[{c}].playerCount, s[{c}].maxPlayerCount, s[{c}].requiresPassword, s[{c}].region]")
+    return cmd("execute_squirrel", {
+        "code": f"array<ServerInfo> s = NSGetGameServers()\nreturn {ret}"
+    })["result"]
 
-        ret = "[" + ",".join(primret) + "]"
-
-        return cmd("execute_squirrel", {
-            "code": f"array<ServerInfo> s = NSGetGameServers()\nreturn {ret}"
-        })["result"]
-
-    return []
 
 def NSTryAuthWithServer(index: int, password: str = None):
     if password is None:
